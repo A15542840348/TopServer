@@ -1,11 +1,13 @@
 package com.top.data.models.resources.product
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument
 import com.top.data.models.common.AvatarData
 import com.top.data.models.resources.IResourceProfileData
 
 /**
  * 产品资源 信息
  */
+@DynamoDBDocument
 data class ProductProfileData(
     /**
      * 产品名称

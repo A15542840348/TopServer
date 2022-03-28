@@ -1,19 +1,15 @@
-package com.top.dynamodb.tables;
-
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.top.data.models.common.Page;
-import com.top.data.models.common.Pageable;
-import com.top.data.models.common.SortDirection;
+import com.top.data.ResourceStatus;
+import com.top.data.ResourceType;
+import com.top.data.models.common.*;
 import com.top.data.models.resources.product.ProductData;
+import com.top.data.models.resources.product.ProductProfileData;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -21,7 +17,48 @@ import java.util.*;
 public class ProductTableBak {
 
     public static void main(String[] args) {
+//        MetaData md = new MetaData();
+//        md.createdByUserId = "100";
+//        md.updatedByUserId = "100";
+//        md.createdTime = new Date();
+//        md.updatedTime = new Date();
+//        //保存
+//        ProductData item = new ProductData("7","200", ResourceType.APP,
+//                new ProductProfileData("100", new AvatarData(AvatarDataType.EMOJI,"300","100","100"),"100"),
+//                ResourceStatus.DELETED,md
+//        );
+//
+//        MetaData md1 = new MetaData();
+//        md1.createdByUserId = "100";
+//        md1.updatedByUserId = "100";
+//        md1.createdTime = new Date();
+//        md1.updatedTime = new Date();
+//        //保存
+//        ProductData item1 = new ProductData("8","200", ResourceType.APP,
+//                new ProductProfileData("100", new AvatarData(AvatarDataType.EMOJI,"100","100","100"),"100"),
+//                ResourceStatus.DELETED,md1
+//        );
+////        save(item);
+//
+//        List<ProductData> items = new ArrayList<>();
+//        items.add(item);
+//        items.add(item1);
+//
+////        List<ProductData> pdList =  saveAll(items);
+//
+//        update(item);
 
+        List<String> ids = new ArrayList<>();
+        List<String> ownerIds = new ArrayList<>();
+
+        ids.add("1");
+        ownerIds.add("2");
+        ids.add("100");
+        ownerIds.add("200");
+        ids.add("2");
+        ownerIds.add("2");
+
+        findAllByIdOwnerId(ids,ownerIds);
     }
 
     //override fun findAll(pageable: Pageable): Page<Product>
@@ -79,18 +116,18 @@ public class ProductTableBak {
             if(pageable.getSort().getDirection() == SortDirection.DESC)
                 Collections.reverse(pdPage.getResults());
 
-            //总结果除以每页个数 + 1，不足加1
-            pg.setTotalPages((int) Math.ceil((double)pdPage.getCount() / (double)pageable.getPageSize()));
-            pg.setTotalElements(pdPage.getCount());
-            pg.setTotalElements(pdPage.getCount());
-            //复制
-            List<Product> pds = new ArrayList<>();
-            int loopTime = Math.min(pdPage.getCount(),pageable.getPageNumber()* pageable.getPageSize());//剩下的不足pageSize个，显示剩下所有元素
-            int loopInit = (pageable.getPageNumber() - 1) * pageable.getPageSize();//当前页起始数据下标为前面页含有元素个数
-            for(int i = loopInit; i < loopTime;i++) {
-                pds.add(pdPage.getResults().get(i));
-            }
-            pg.setData(pds);
+//            //总结果除以每页个数 + 1，不足加1
+//            pg.setTotalPages((int) Math.ceil((double)pdPage.getCount() / (double)pageable.getPageSize()));
+//            pg.setTotalElements(pdPage.getCount());
+//            pg.setTotalElements(pdPage.getCount());
+//            //复制
+//            List<Product> pds = new ArrayList<>();
+//            int loopTime = Math.min(pdPage.getCount(),pageable.getPageNumber()* pageable.getPageSize());//剩下的不足pageSize个，显示剩下所有元素
+//            int loopInit = (pageable.getPageNumber() - 1) * pageable.getPageSize();//当前页起始数据下标为前面页含有元素个数
+//            for(int i = loopInit; i < loopTime;i++) {
+//                pds.add(pdPage.getResults().get(i));
+//            }
+//            pg.setData(pds);
         }
         catch (Exception e) {
             System.err.println("Unable to delete item: ");
@@ -306,12 +343,32 @@ public class ProductTableBak {
         return pd;
     }
 
-    public List<ProductData> findAllByIdOwnerId(List<String> ids,List<String> ownerIds){
+    /**
+     * https://docs.aws.amazon.com/zh_cn/zh_cn/amazondynamodb/latest/developerguide/DynamoDBMapper.Methods.html#DynamoDBMapper.Methods.batchLoad
+     * @param ids
+     * @param ownerIds
+     * @return
+     */
+    public static List<ProductData> findAllByIdOwnerId(List<String> ids, List<String> ownerIds){
         List<ProductData> listPd = new ArrayList<>();
+        DynamoDBMapper mapper = TableMethod.getMapper();
+
+//        ArrayList<Object> itemsToGet = new ArrayList<Object>();
+
+        Map<Class<?>, List<KeyPair>> itemsToGet = new HashMap<>();
+        List<KeyPair> listKey = new ArrayList<>();
 
         for(int i = 0;i < ids.size();i++){
-            listPd.add(findByIdOwnerId(ids.get(i), ownerIds.get(i)));
+            KeyPair key = new KeyPair();
+            key.setHashKey(ids.get(i));
+            key.setRangeKey(ownerIds.get(i));
+
+            listKey.add(key);
         }
+
+        itemsToGet.put(ProductData.class,listKey);
+
+        Map<String, List<Object>> items = mapper.batchLoad(itemsToGet);
 
         return listPd;
     }
@@ -322,27 +379,6 @@ public class ProductTableBak {
 
         try {
             pd = mapper.load(ProductData.class,id,ownerId);
-
-            System.out.println(pd.toString());
-        }
-        catch (Exception e) {
-            System.err.println("故障2:");
-            System.err.println(e.getMessage());
-            System.err.println("故障打印结束!");
-        }
-
-        return pd;
-    }
-
-    public ProductData update(ProductData pd){
-        DynamoDBMapper mapper = TableMethod.getMapper();
-
-        try {
-            DynamoDBSaveExpression de = new DynamoDBSaveExpression()
-                    .withConditionalOperator("condition-expression ::= Id = " + pd.getId());
-            //https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html
-
-            mapper.save(pd,de);
         }
         catch (Exception e) {
             System.err.println("故障:");
@@ -353,37 +389,84 @@ public class ProductTableBak {
         return pd;
     }
 
-    public static List<ProductData> saveAll(List<ProductData> items){
+    public static ProductData update(ProductData pd){
         DynamoDBMapper mapper = TableMethod.getMapper();
 
         try {
-            mapper.batchSave(items);
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":idStr", new AttributeValue(pd.getId()));
+            eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+            DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                    .withExpressionAttributeValues(eav)
+                    .withConditionExpression("id = :idStr AND ownerId = :ownerIdStr");
+
+            TransactionWriteRequest twr = new TransactionWriteRequest();
+            twr.addPut(pd, twe);
+
+            mapper.transactionWrite(twr);
         }
         catch (Exception e) {
-            System.err.println("故障:");
+            System.err.println("故障:不存在该项");
             System.err.println(e.getMessage());
             System.err.println("故障打印结束!");
         }
 
-        return items;
+        return pd;
     }
 
-    public static ProductData save(ProductData item){
+    public static List<ProductData> saveAll(List<ProductData> pds){
         DynamoDBMapper mapper = TableMethod.getMapper();
 
         try {
-            DynamoDBSaveExpression de = new DynamoDBSaveExpression()
-                    .withConditionalOperator("condition-expression ::= Id <> " + item.getId())
-                    .withConditionalOperator("condition-expression ::= ownerId <> " + item.getOwnerId());
+            TransactionWriteRequest twr = new TransactionWriteRequest();
 
-            mapper.save(item,de);
+            for (ProductData pd : pds) {
+                Map<String, AttributeValue> eav = new HashMap<>();
+                eav.put(":idStr", new AttributeValue(pd.getId()));
+                eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+                DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                        .withExpressionAttributeValues(eav)
+                        .withConditionExpression("id <> :idStr OR ownerId <> :ownerIdStr");
+
+                twr.addPut(pd, twe);
+            }
+
+            mapper.transactionWrite(twr);
         }
         catch (Exception e) {
-            System.err.println("故障:");
+            System.err.println("故障:项目已存在");
             System.err.println(e.getMessage());
             System.err.println("故障打印结束!");
         }
 
-        return item;
+        return pds;
+    }
+
+    public static ProductData save(ProductData pd){
+        DynamoDBMapper mapper = TableMethod.getMapper();
+
+        try {
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":idStr", new AttributeValue(pd.getId()));
+            eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+            DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                    .withExpressionAttributeValues(eav)
+                    .withConditionExpression("id <> :idStr OR ownerId <> :ownerIdStr");
+
+            TransactionWriteRequest twr = new TransactionWriteRequest();
+            twr.addPut(pd, twe);
+
+            mapper.transactionWrite(twr);
+        }
+        catch (Exception e) {
+            System.err.println("故障:项目已存在");
+            System.err.println(e.getMessage());
+            System.err.println("故障打印结束!");
+        }
+
+        return pd;
     }
 }
