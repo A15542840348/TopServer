@@ -17,39 +17,39 @@ import java.util.*;
 public class ProductTableBak {
 
     public static void main(String[] args) {
-        MetaData md = new MetaData();
-        md.setCreatedByUserId("100");
-        md.setUpdatedByUserId("100");
-        md.setCreatedTime(new Date());
-        md.setUpdatedTime(new Date());
-
-        AvatarData ad = new AvatarData();
-        ad.setType(AvatarDataType.EMOJI);
-        ad.setEmoji("100");
-        ad.setImageId("100");
-        ad.setText("100");
-
-        ProductProfileData ppd = new ProductProfileData();
-        ppd.setAvatar(ad);
-        ppd.setDescription("100");
-        ppd.setName("100");
-
-        //±£´æ
-        ProductData item = new ProductData();
-        item.setId("7");
-        item.setOwnerId("200");
-        item.setOwnerType(ResourceType.APP);
-        item.setProfile(ppd);
-        item.setStatus(ResourceStatus.DELETED);
-        item.setMeta(md);
-        save(item);
+//        MetaData md = new MetaData();
+//        md.setCreatedByUserId("100");
+//        md.setUpdatedByUserId("100");
+//        md.setCreatedTime(new Date());
+//        md.setUpdatedTime(new Date());
+//
+//        AvatarData ad = new AvatarData();
+//        ad.setType(AvatarDataType.EMOJI);
+//        ad.setEmoji("100");
+//        ad.setImageId("100");
+//        ad.setText("100");
+//
+//        ProductProfileData ppd = new ProductProfileData();
+//        ppd.setAvatar(ad);
+//        ppd.setDescription("100");
+//        ppd.setName("100");
+//
+//        //ä¿å­˜
+//        ProductData item = new ProductData();
+//        item.setId("7");
+//        item.setOwnerId("200");
+//        item.setOwnerType(ResourceType.APP);
+//        item.setProfile(ppd);
+//        item.setStatus(ResourceStatus.DELETED);
+//        item.setMeta(md);
+//        save(item);
 
 //        MetaData md1 = new MetaData();
 //        md1.createdByUserId = "100";
 //        md1.updatedByUserId = "100";
 //        md1.createdTime = new Date();
 //        md1.updatedTime = new Date();
-//        //±£´æ
+//        //ä¿å­˜
 //        ProductData item1 = new ProductData("8","200", ResourceType.APP,
 //                new ProductProfileData("100", new AvatarData(AvatarDataType.EMOJI,"100","100","100"),"100"),
 //                ResourceStatus.DELETED,md1
@@ -64,17 +64,17 @@ public class ProductTableBak {
 //
 //        update(item);
 
-//        List<String> ids = new ArrayList<>();
-//        List<String> ownerIds = new ArrayList<>();
-//
-//        ids.add("1");
-//        ownerIds.add("2");
-//        ids.add("100");
-//        ownerIds.add("200");
-//        ids.add("2");
-//        ownerIds.add("2");
-//
-//        findAllById(ids,ownerIds);
+        List<String> ids = new ArrayList<>();
+        List<String> ownerIds = new ArrayList<>();
+
+        ids.add("1");
+        ownerIds.add("2");
+        ids.add("100");
+        ownerIds.add("200");
+        ids.add("2");
+        ownerIds.add("2");
+
+        findAllById(ids,ownerIds);
 
 //        findById("1","2");
     }
@@ -94,7 +94,7 @@ public class ProductTableBak {
 //                    .withProjectionExpression("id, ownerId, profile.#nm, profile.avatar.#tp, profile.description")
 //                    .withExpressionAttributeNames(new NameMap().with("#nm", "name").with("#tp", "type"))
                     .withExpressionAttributeValues(eav)
-//                    .withLimit(pageable.getPageNumber() * pageable.getPageSize())//Ã¿´Î×î¶à»ñÈ¡¶àÉÙ¸öÊı¾İ£¬»ñÈ¡µ½ÏŞÖÆÖµ£¬Í£Ö¹É¨Ãè
+//                    .withLimit(pageable.getPageNumber() * pageable.getPageSize())//æ¯æ¬¡æœ€å¤šè·å–å¤šå°‘ä¸ªæ•°æ®ï¼Œè·å–åˆ°é™åˆ¶å€¼ï¼Œåœæ­¢æ‰«æ
                     ;
 
             ScanResultPage<ProductData> pdPage;
@@ -128,20 +128,20 @@ public class ProductTableBak {
 //                e.printStackTrace();
 //            }
 
-            pdPage.getResults().sort((o1, o2) -> orderRecursion(o1, o2, pageable, 0)); // °´Ê××ÖÄ¸ÅÅĞò
+            pdPage.getResults().sort((o1, o2) -> orderRecursion(o1, o2, pageable, 0)); // æŒ‰é¦–å­—æ¯æ’åº
 
-            //½µĞò
+            //é™åº
             if(pageable.getSort().getDirection() == SortDirection.DESC)
                 Collections.reverse(pdPage.getResults());
 
-//            //×Ü½á¹û³ıÒÔÃ¿Ò³¸öÊı + 1£¬²»×ã¼Ó1
+//            //æ€»ç»“æœé™¤ä»¥æ¯é¡µä¸ªæ•° + 1ï¼Œä¸è¶³åŠ 1
 //            pg.setTotalPages((int) Math.ceil((double)pdPage.getCount() / (double)pageable.getPageSize()));
 //            pg.setTotalElements(pdPage.getCount());
 //            pg.setTotalElements(pdPage.getCount());
-//            //¸´ÖÆ
+//            //å¤åˆ¶
 //            List<Product> pds = new ArrayList<>();
-//            int loopTime = Math.min(pdPage.getCount(),pageable.getPageNumber()* pageable.getPageSize());//Ê£ÏÂµÄ²»×ãpageSize¸ö£¬ÏÔÊ¾Ê£ÏÂËùÓĞÔªËØ
-//            int loopInit = (pageable.getPageNumber() - 1) * pageable.getPageSize();//µ±Ç°Ò³ÆğÊ¼Êı¾İÏÂ±êÎªÇ°ÃæÒ³º¬ÓĞÔªËØ¸öÊı
+//            int loopTime = Math.min(pdPage.getCount(),pageable.getPageNumber()* pageable.getPageSize());//å‰©ä¸‹çš„ä¸è¶³pageSizeä¸ªï¼Œæ˜¾ç¤ºå‰©ä¸‹æ‰€æœ‰å…ƒç´ 
+//            int loopInit = (pageable.getPageNumber() - 1) * pageable.getPageSize();//å½“å‰é¡µèµ·å§‹æ•°æ®ä¸‹æ ‡ä¸ºå‰é¢é¡µå«æœ‰å…ƒç´ ä¸ªæ•°
 //            for(int i = loopInit; i < loopTime;i++) {
 //                pds.add(pdPage.getResults().get(i));
 //            }
@@ -156,7 +156,7 @@ public class ProductTableBak {
     }
 
     public static int orderRecursion(ProductData o1, ProductData o2, Pageable pageable, int nowOrderByNum){
-        //Í¨¹ıÃû×Ö»ñÈ¡ÊôĞÔÀàĞÍ
+        //é€šè¿‡åå­—è·å–å±æ€§ç±»å‹
         Field f;
         Object ob1 = new Object();
         Object ob2 = new Object();
@@ -183,7 +183,7 @@ public class ProductTableBak {
             else if (diff < 0)
                 return -1;
 
-            //»Øµ÷
+            //å›è°ƒ
             nowOrderByNum++;
             if(nowOrderByNum < pageable.getSort().getOrderBy().size())
             {
@@ -201,13 +201,13 @@ public class ProductTableBak {
                     return -1;
             }
 
-            //Ç°±ß×Ö·û¶¼ÏàÍ¬£¬°´³¤¶È·Ö
+            //å‰è¾¹å­—ç¬¦éƒ½ç›¸åŒï¼ŒæŒ‰é•¿åº¦åˆ†
             if(ob1.toString().length() > ob2.toString().length())
                 return 1;
             else if(ob1.toString().length() < ob2.toString().length())
                 return -1;
 
-            //»Øµ÷
+            //å›è°ƒ
             nowOrderByNum++;
             if(nowOrderByNum < pageable.getSort().getOrderBy().size())
             {
@@ -217,27 +217,64 @@ public class ProductTableBak {
         }
     }
 
-//    public void deleteAllById(List<String> ids){
-//        DynamoDBMapper mapper = TableMethod.getMapper();
-//
-//        try {
-//            List<ProductData> pds = findAllById(ids);
-//            mapper.batchDelete(pds);
-//        }
-//        catch (Exception e) {
-//            System.err.println("Unable to delete item ");
-//            System.err.println(e.getMessage());
-//        }
-//    }
+    public void deleteAllById(List<String> ids,List<String> ownerIds){
+        DynamoDBMapper mapper = TableMethod.getMapper();
 
-    public void deleteById(String id,String ownerId){
         try {
-            ProductData pd = findById(id,ownerId);
-            delete(pd);
+            TransactionWriteRequest twr = new TransactionWriteRequest();
+
+            for(int i = 0;i < ids.size();i++)
+            {
+                ProductData pd = new ProductData();
+                pd.setId(ids.get(i));
+                pd.setOwnerId(ownerIds.get(i));
+
+                Map<String, AttributeValue> eav = new HashMap<>();
+                eav.put(":idStr", new AttributeValue(pd.getId()));
+                eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+                DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                        .withExpressionAttributeValues(eav)
+                        .withConditionExpression("id = :idStr AND ownerId = :ownerIdStr");
+
+                twr.addDelete(pd, twe);
+            }
+
+            mapper.transactionWrite(twr);
         }
         catch (Exception e) {
-            System.err.println("Unable to delete item ");
+            System.err.println("æ•…éšœ:é¡¹ç›®ä¸å­˜åœ¨");
             System.err.println(e.getMessage());
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
+        }
+    }
+
+    public void deleteById(String id,String ownerId){
+        DynamoDBMapper mapper = TableMethod.getMapper();
+
+        try {
+            ProductData pd = new ProductData();
+            pd.setId(id);
+            pd.setOwnerId(ownerId);
+
+            TransactionWriteRequest twr = new TransactionWriteRequest();
+
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":idStr", new AttributeValue(pd.getId()));
+            eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+            DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                    .withExpressionAttributeValues(eav)
+                    .withConditionExpression("id = :idStr AND ownerId = :ownerIdStr");
+
+            twr.addDelete(pd, twe);
+
+            mapper.transactionWrite(twr);
+        }
+        catch (Exception e) {
+            System.err.println("æ•…éšœ:é¡¹ç›®ä¸å­˜åœ¨");
+            System.err.println(e.getMessage());
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
         }
     }
 
@@ -248,19 +285,70 @@ public class ProductTableBak {
             mapper.delete(pd);
         }
         catch (Exception e) {
-            System.err.println("Unable to delete item: ");
+            System.err.println("æ•…éšœ:åˆ é™¤å¤±è´¥");
             System.err.println(e.getMessage());
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
         }
     }
 
-    public List<ProductData> updateAll(List<ProductData> items){
-        return saveAll(items);
+    public List<ProductData> updateAll(List<ProductData> pds){
+        DynamoDBMapper mapper = TableMethod.getMapper();
+
+        try {
+            TransactionWriteRequest twr = new TransactionWriteRequest();
+
+            for (ProductData pd : pds) {
+                Map<String, AttributeValue> eav = new HashMap<>();
+                eav.put(":idStr", new AttributeValue(pd.getId()));
+                eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+                DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                        .withExpressionAttributeValues(eav)
+                        .withConditionExpression("id = :idStr AND ownerId = :ownerIdStr");
+
+                twr.addPut(pd, twe);
+            }
+
+            mapper.transactionWrite(twr);
+        }
+        catch (Exception e) {
+            System.err.println("æ•…éšœ:é¡¹ç›®ä¸å­˜åœ¨");
+            System.err.println(e.getMessage());
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
+        }
+
+        return pds;
     }
 
+    public static ProductData update(ProductData pd){
+        DynamoDBMapper mapper = TableMethod.getMapper();
+
+        try {
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":idStr", new AttributeValue(pd.getId()));
+            eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
+
+            DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
+                    .withExpressionAttributeValues(eav)
+                    .withConditionExpression("id = :idStr AND ownerId = :ownerIdStr");
+
+            TransactionWriteRequest twr = new TransactionWriteRequest();
+            twr.addPut(pd, twe);
+
+            mapper.transactionWrite(twr);
+        }
+        catch (Exception e) {
+            System.err.println("æ•…éšœ:ä¸å­˜åœ¨è¯¥é¡¹");
+            System.err.println(e.getMessage());
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
+        }
+
+        return pd;
+    }
 
     /**
-     * Ã¿6Ğ¡Ê±²Å¸üĞÂÒ»´Î
-     * @return ÏîÄ¿Êı
+     * æ¯6å°æ—¶æ‰æ›´æ–°ä¸€æ¬¡
+     * @return é¡¹ç›®æ•°
      */
     public static long count(){
         Table table = TableMethod.getTable("Product");
@@ -269,8 +357,8 @@ public class ProductTableBak {
     }
 
     /**
-     * »ñÈ¡ÊµÊ±ÏîÄ¿Êı£¬ÏûºÄ×ÊÔ´
-     * @return ÏîÄ¿Êı
+     * è·å–å®æ—¶é¡¹ç›®æ•°ï¼Œæ¶ˆè€—èµ„æº
+     * @return é¡¹ç›®æ•°
      */
     public static long getRealTimeCount(){
         Table table = TableMethod.getTable("Product");
@@ -298,12 +386,10 @@ public class ProductTableBak {
     }
 
     // https://docs.aws.amazon.com/zh_cn/zh_cn/amazondynamodb/latest/developerguide/DynamoDBMapper.Methods.html#DynamoDBMapper.Methods.batchLoad
-    // Ô­ÀàĞÍÎŞ·¨³õÊ¼»¯£¬³õÊ¼»¯Ê±±ØĞëÓĞÖµ
+    // åŸç±»å‹æ— æ³•åˆå§‹åŒ–ï¼Œåˆå§‹åŒ–æ—¶å¿…é¡»æœ‰å€¼
     public static List<ProductData> findAllById(List<String> ids, List<String> ownerIds){
         List<ProductData> listPd = new ArrayList<>();
         DynamoDBMapper mapper = TableMethod.getMapper();
-
-//        ArrayList<Object> itemsToGet = new ArrayList<Object>();
 
         Map<Class<?>, List<KeyPair>> itemsToGet = new HashMap<>();
         List<KeyPair> listKey = new ArrayList<>();
@@ -319,7 +405,7 @@ public class ProductTableBak {
         itemsToGet.put(ProductData.class,listKey);
 
         Map<String, List<Object>> items = mapper.batchLoad(itemsToGet);
-
+;
         for(Object pdb : items.get("Product"))
         {
             listPd.add((ProductData) pdb);
@@ -336,35 +422,9 @@ public class ProductTableBak {
             pd = mapper.load(ProductData.class,id,ownerId);
         }
         catch (Exception e) {
-            System.err.println("¹ÊÕÏ:");
+            System.err.println("æ•…éšœ:");
             System.err.println(e.getMessage());
-            System.err.println("¹ÊÕÏ´òÓ¡½áÊø!");
-        }
-
-        return pd;
-    }
-
-    public static ProductData update(ProductData pd){
-        DynamoDBMapper mapper = TableMethod.getMapper();
-
-        try {
-            Map<String, AttributeValue> eav = new HashMap<>();
-            eav.put(":idStr", new AttributeValue(pd.getId()));
-            eav.put(":ownerIdStr", new AttributeValue(pd.getOwnerId()));
-
-            DynamoDBTransactionWriteExpression twe = new DynamoDBTransactionWriteExpression()
-                    .withExpressionAttributeValues(eav)
-                    .withConditionExpression("id = :idStr AND ownerId = :ownerIdStr");
-
-            TransactionWriteRequest twr = new TransactionWriteRequest();
-            twr.addPut(pd, twe);
-
-            mapper.transactionWrite(twr);
-        }
-        catch (Exception e) {
-            System.err.println("¹ÊÕÏ:²»´æÔÚ¸ÃÏî");
-            System.err.println(e.getMessage());
-            System.err.println("¹ÊÕÏ´òÓ¡½áÊø!");
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
         }
 
         return pd;
@@ -391,9 +451,9 @@ public class ProductTableBak {
             mapper.transactionWrite(twr);
         }
         catch (Exception e) {
-            System.err.println("¹ÊÕÏ:ÏîÄ¿ÒÑ´æÔÚ");
+            System.err.println("æ•…éšœ:é¡¹ç›®å·²å­˜åœ¨");
             System.err.println(e.getMessage());
-            System.err.println("¹ÊÕÏ´òÓ¡½áÊø!");
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
         }
 
         return pds;
@@ -417,9 +477,9 @@ public class ProductTableBak {
             mapper.transactionWrite(twr);
         }
         catch (Exception e) {
-            System.err.println("¹ÊÕÏ:ÏîÄ¿ÒÑ´æÔÚ");
+            System.err.println("æ•…éšœ:é¡¹ç›®å·²å­˜åœ¨");
             System.err.println(e.getMessage());
-            System.err.println("¹ÊÕÏ´òÓ¡½áÊø!");
+            System.err.println("æ•…éšœæ‰“å°ç»“æŸ!");
         }
 
         return pd;
