@@ -25,9 +25,10 @@ class MetaData() {
      * 创建时间
      */
     @get:DynamoDBAttribute(attributeName = "createdTime")
-    @get:DynamoDBTypeConverted(converter =  LongToDateConverter::class)
+    @get:DynamoDBTypeConverted(converter = LongToDateConverter::class)
     @set:DynamoDBAttribute(attributeName = "createdTime")
     lateinit var createdTime: Date
+
 
     /**
      * 更新时间

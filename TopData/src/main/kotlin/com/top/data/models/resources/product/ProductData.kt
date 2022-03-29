@@ -13,38 +13,40 @@ import com.top.data.models.resources.IResourceData
  * 产品（资源）
  */
 @DynamoDBTable(tableName = "Product")
-data class ProductData(
+class ProductData(
+
+) : IResourceData{
     /**
      * 产品ID
      */
     @get:DynamoDBHashKey(attributeName = "id")
-    override val id: String,
+    override lateinit var id: String
 
     /**
-     * 产品所有者ID
+     * 所有者ID
      */
     @get:DynamoDBRangeKey(attributeName = "ownerId")
-    override val ownerId: String,
+    override lateinit var ownerId: String
 
     /**
-     * 产品所有者类型
+     * 所有者类型
      */
     @get:DynamoDBTypeConvertedEnum()
-    override val ownerType: ResourceType,
+    override lateinit var ownerType: ResourceType
 
     /**
      * 产品概述
      */
-    val profile: ProductProfileData,
+    lateinit var profile: ProductProfileData
 
     /**
      * 产品状态
      */
     @get:DynamoDBTypeConvertedEnum()
-    override val status: ResourceStatus,
+    override lateinit var status: ResourceStatus
 
     /**
      * 元数据
      */
-    override val meta: MetaData,
-) : IResourceData
+    override lateinit var meta: MetaData
+}

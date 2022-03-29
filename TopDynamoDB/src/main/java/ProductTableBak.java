@@ -17,17 +17,33 @@ import java.util.*;
 public class ProductTableBak {
 
     public static void main(String[] args) {
-//        MetaData md = new MetaData();
-//        md.createdByUserId = "100";
-//        md.updatedByUserId = "100";
-//        md.createdTime = new Date();
-//        md.updatedTime = new Date();
-//        //保存
-//        ProductData item = new ProductData("7","200", ResourceType.APP,
-//                new ProductProfileData("100", new AvatarData(AvatarDataType.EMOJI,"300","100","100"),"100"),
-//                ResourceStatus.DELETED,md
-//        );
-//
+        MetaData md = new MetaData();
+        md.setCreatedByUserId("100");
+        md.setUpdatedByUserId("100");
+        md.setCreatedTime(new Date());
+        md.setUpdatedTime(new Date());
+
+        AvatarData ad = new AvatarData();
+        ad.setType(AvatarDataType.EMOJI);
+        ad.setEmoji("100");
+        ad.setImageId("100");
+        ad.setText("100");
+
+        ProductProfileData ppd = new ProductProfileData();
+        ppd.setAvatar(ad);
+        ppd.setDescription("100");
+        ppd.setName("100");
+
+        //保存
+        ProductData item = new ProductData();
+        item.setId("7");
+        item.setOwnerId("200");
+        item.setOwnerType(ResourceType.APP);
+        item.setProfile(ppd);
+        item.setStatus(ResourceStatus.DELETED);
+        item.setMeta(md);
+        save(item);
+
 //        MetaData md1 = new MetaData();
 //        md1.createdByUserId = "100";
 //        md1.updatedByUserId = "100";
@@ -48,17 +64,19 @@ public class ProductTableBak {
 //
 //        update(item);
 
-        List<String> ids = new ArrayList<>();
-        List<String> ownerIds = new ArrayList<>();
+//        List<String> ids = new ArrayList<>();
+//        List<String> ownerIds = new ArrayList<>();
+//
+//        ids.add("1");
+//        ownerIds.add("2");
+//        ids.add("100");
+//        ownerIds.add("200");
+//        ids.add("2");
+//        ownerIds.add("2");
+//
+//        findAllById(ids,ownerIds);
 
-        ids.add("1");
-        ownerIds.add("2");
-        ids.add("100");
-        ownerIds.add("200");
-        ids.add("2");
-        ownerIds.add("2");
-
-        findAllByIdOwnerId(ids,ownerIds);
+//        findById("1","2");
     }
 
     //override fun findAll(pageable: Pageable): Page<Product>
@@ -199,22 +217,22 @@ public class ProductTableBak {
         }
     }
 
-    public void deleteAllById(List<String> ids){
-        DynamoDBMapper mapper = TableMethod.getMapper();
+//    public void deleteAllById(List<String> ids){
+//        DynamoDBMapper mapper = TableMethod.getMapper();
+//
+//        try {
+//            List<ProductData> pds = findAllById(ids);
+//            mapper.batchDelete(pds);
+//        }
+//        catch (Exception e) {
+//            System.err.println("Unable to delete item ");
+//            System.err.println(e.getMessage());
+//        }
+//    }
 
+    public void deleteById(String id,String ownerId){
         try {
-            List<ProductData> pds = findAllById(ids);
-            mapper.batchDelete(pds);
-        }
-        catch (Exception e) {
-            System.err.println("Unable to delete item ");
-            System.err.println(e.getMessage());
-        }
-    }
-
-    public void deleteById(String id){
-        try {
-            ProductData pd = findById(id);
+            ProductData pd = findById(id,ownerId);
             delete(pd);
         }
         catch (Exception e) {
@@ -273,83 +291,15 @@ public class ProductTableBak {
         return count;
     }
 
-    public static Boolean existsById(String id){
-        ProductData pd = findById(id);
+    public static Boolean existsById(String id,String ownerId){
+        ProductData pd = findById(id,ownerId);
 
         return pd != null;
     }
 
-    //返回符合条件的所有信息
-    public static List<ProductData> findAllById(List<String> ids)
-    {
-        List<ProductData> pds = new ArrayList<>();
-        DynamoDBMapper mapper = TableMethod.getMapper();
-
-        try {
-            HashMap<String, AttributeValue> eav = new HashMap<>();
-
-            eav.put(":val0", new AttributeValue().withS(ids.get(0)));
-            StringBuilder filterExperssion = new StringBuilder("id = :val0");
-
-            for(int i = 1;i < ids.size();i++) {
-                eav.put(":val" + i, new AttributeValue().withS(ids.get(i)));
-                filterExperssion.append(" or id = :val").append(i);
-            }
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                    .withFilterExpression(String.valueOf(filterExperssion))
-                    .withExpressionAttributeValues(eav);
-
-            pds =  mapper.scan(ProductData.class, scanExpression);
-
-            System.out.println(pds.toString());
-        }
-        catch (Exception e) {
-            System.err.println("故障2:");
-            System.err.println(e.getMessage());
-            System.err.println("故障打印结束!");
-        }
-
-        return pds;
-    }
-
-    //返回查询到的第一条数据
-    public static ProductData findById(String id)
-    {
-        ProductData pd = null;
-        DynamoDBMapper mapper = TableMethod.getMapper();
-
-        try {
-            HashMap<String, AttributeValue> eav = new HashMap<>();
-            eav.put(":val1", new AttributeValue().withS(id));
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                    .withFilterExpression("id = :val1")
-                    .withExpressionAttributeValues(eav);
-
-            List<ProductData> pds =  mapper.scan(ProductData.class, scanExpression);
-
-            pd = pds.get(1);
-
-            System.out.println(pd.toString());
-        }
-        catch (Exception e) {
-            System.err.println("故障2:");
-            System.err.println(e.getMessage());
-            System.err.println("故障打印结束!");
-            return pd;
-        }
-
-        return pd;
-    }
-
-    /**
-     * https://docs.aws.amazon.com/zh_cn/zh_cn/amazondynamodb/latest/developerguide/DynamoDBMapper.Methods.html#DynamoDBMapper.Methods.batchLoad
-     * @param ids
-     * @param ownerIds
-     * @return
-     */
-    public static List<ProductData> findAllByIdOwnerId(List<String> ids, List<String> ownerIds){
+    // https://docs.aws.amazon.com/zh_cn/zh_cn/amazondynamodb/latest/developerguide/DynamoDBMapper.Methods.html#DynamoDBMapper.Methods.batchLoad
+    // 原类型无法初始化，初始化时必须有值
+    public static List<ProductData> findAllById(List<String> ids, List<String> ownerIds){
         List<ProductData> listPd = new ArrayList<>();
         DynamoDBMapper mapper = TableMethod.getMapper();
 
@@ -370,10 +320,15 @@ public class ProductTableBak {
 
         Map<String, List<Object>> items = mapper.batchLoad(itemsToGet);
 
+        for(Object pdb : items.get("Product"))
+        {
+            listPd.add((ProductData) pdb);
+        }
+
         return listPd;
     }
 
-    public static ProductData findByIdOwnerId(String id,String ownerId){
+    public static ProductData findById(String id,String ownerId){
         ProductData pd = null;
         DynamoDBMapper mapper = TableMethod.getMapper();
 

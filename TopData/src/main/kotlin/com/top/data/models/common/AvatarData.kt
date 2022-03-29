@@ -7,25 +7,26 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedEnum
  * 头像数据
  */
 @DynamoDBDocument
-data class AvatarData(
+class AvatarData()
+{
     /**
      * 头像类型
      */
     @get:DynamoDBTypeConvertedEnum()
-    val type: AvatarDataType,
+    lateinit var type: AvatarDataType
 
     /**
      * 图片
      */
-    val imageId: String?,
+    var imageId: String? = null
 
     /**
      * 文本
      */
-    val text: String?,
+    var text: String? = null
 
     /**
      * Emoji
      */
-    val emoji: String?,
-)
+    var emoji: String? = null
+}
