@@ -14,5 +14,5 @@ data class Pageable(
     /**
      * 排序数据
      */
-    val sort: com.top.data.models.common.Sort,
+    val sort: Sort,
 )

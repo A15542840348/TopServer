@@ -7,7 +7,7 @@ data class Sort(
     /**
      * 排序方向
      */
-    val direction: com.top.data.models.common.SortDirection,
+    val direction: SortDirection,
 
     /**
      * 排序优先级

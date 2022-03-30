@@ -1,3 +1,6 @@
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
@@ -5,6 +8,8 @@ import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ExecuteStatementRequest;
+import com.amazonaws.services.dynamodbv2.model.ExecuteStatementResult;
 import com.top.data.ResourceStatus;
 import com.top.data.ResourceType;
 import com.top.data.models.common.*;
@@ -64,23 +69,103 @@ public class ProductTableBak {
 //
 //        update(item);
 
-        List<String> ids = new ArrayList<>();
-        List<String> ownerIds = new ArrayList<>();
-
-        ids.add("1");
-        ownerIds.add("2");
-        ids.add("100");
-        ownerIds.add("200");
-        ids.add("2");
-        ownerIds.add("2");
-
-        findAllById(ids,ownerIds);
+//        List<String> ids = new ArrayList<>();
+//        List<String> ownerIds = new ArrayList<>();
+//
+//        ids.add("1");
+//        ownerIds.add("2");
+//        ids.add("100");
+//        ownerIds.add("200");
+//        ids.add("2");
+//        ownerIds.add("2");
+//
+//        findAllById(ids,ownerIds);
 
 //        findById("1","2");
+
+        Pageable pageable = new Pageable(10, 10, new Sort(SortDirection.ASC, new ArrayList<>()));
+//        findAllQuery(pageable);
+        findAllLoad(pageable);
     }
 
+    public static Page<ProductData> findAllLoad(Pageable pageable){
+        Page<ProductData> pg = new Page<>(0,0, pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort(),new ArrayList<>());
+        try {
+            DynamoDBMapper mapper = TableMethod.getMapper();
+
+            // Create ExecuteStatementRequest
+            ExecuteStatementRequest executeStatementRequest = new ExecuteStatementRequest();
+
+            AmazonDynamoDB dynamoDB = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
+
+            ExecuteStatementRequest request = new ExecuteStatementRequest();
+            request.setStatement("SELECT * FROM Product WHERE ownerType = APP OR ownerType = PRODUCT ORDER BY id");
+
+            ExecuteStatementResult a = dynamoDB.executeStatement(request);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                    .withLimit(pageable.getPageSize())
+//                    .withExclusiveStartKey()
+                    ;
+
+            ScanResultPage<ProductData> srp = mapper.scanPage(ProductData.class,scanExpression);
+
+            System.out.println(srp);
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.err.println("Unable to delete item: ");
+        }
+
+        return pg;
+    }
+
+    //分页查询 https://docs.aws.amazon.com/zh_cn/zh_cn/amazondynamodb/latest/developerguide/Query.Pagination.html
+    public static Page<ProductData> findAllQuery(Pageable pageable){
+        Page<ProductData> pg = new Page<>(0,0, pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort(),new ArrayList<>());
+        try {
+            DynamoDBMapper mapper = TableMethod.getMapper();
+
+            Map<String, AttributeValue> eav = new HashMap<>();
+//            eav.put(":idStr", new AttributeValue("2"));
+            eav.put(":ownerTypeStr", new AttributeValue("APP"));
+
+            DynamoDBQueryExpression<ProductData> queryExpression = new DynamoDBQueryExpression<ProductData>()
+                    .withKeyConditionExpression("ownerType = :ownerTypeStr")
+                    .withExpressionAttributeValues(eav)
+                    .withIndexName("ownerType")
+                    .withConsistentRead(false)
+                    //.withScanIndexForward(pageable.getSort().getOrderBy().equals(SortDirection.ASC))//查询方向
+                    .withLimit(5)
+                    ;
+
+            QueryResultPage<ProductData> qrp = mapper.queryPage(ProductData.class,queryExpression);
+            QueryResultPage<ProductData> qrp1 = null;
+            //如果查询的结果中存在LastEvaluatedKey，则将该参数赋给queryExpression，重新发送申请，获取剩下的，直到不存在该参数
+            Map<String,AttributeValue> lastEvaluatedKey = qrp.getLastEvaluatedKey();
+            if(!lastEvaluatedKey.isEmpty())
+            {
+                queryExpression.withExclusiveStartKey(lastEvaluatedKey);
+                qrp1 = mapper.queryPage(ProductData.class,queryExpression);
+            }
+
+            System.out.println(qrp1);
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.err.println("Unable to delete item: ");
+        }
+
+        return pg;
+    }
+
+    /**
+     * 扫描方式查找，速度慢
+     * @param pageable
+     * @return
+     */
     //override fun findAll(pageable: Pageable): Page<Product>
-    public static Page<ProductData> findAll(Pageable pageable){
+    public static Page<ProductData> findAllScan(Pageable pageable){
         Page<ProductData> pg = new Page<>(0,0, pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort(),new ArrayList<>());
 
         try {
@@ -405,7 +490,7 @@ public class ProductTableBak {
         itemsToGet.put(ProductData.class,listKey);
 
         Map<String, List<Object>> items = mapper.batchLoad(itemsToGet);
-;
+
         for(Object pdb : items.get("Product"))
         {
             listPd.add((ProductData) pdb);
