@@ -15,8 +15,18 @@ import com.top.data.ResourceType;
 import com.top.data.models.common.*;
 import com.top.data.models.resources.product.ProductData;
 import com.top.data.models.resources.product.ProductProfileData;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 public class ProductTableBak {
@@ -86,6 +96,60 @@ public class ProductTableBak {
         Pageable pageable = new Pageable(10, 10, new Sort(SortDirection.ASC, new ArrayList<>()));
 //        findAllQuery(pageable);
         findAllLoad(pageable);
+
+        Region region = Region.US_EAST_1;
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .region(region)
+                .build();
+
+        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(ddb)
+                .build();
+
+        putRecord(enhancedClient) ;
+        ddb.close();
+    }
+
+    public static void putRecord(DynamoDbEnhancedClient enhancedClient) {
+
+        try {
+            DynamoDbTable<ProductData> custTable = enhancedClient.table("Customer", TableSchema.fromBean(ProductData.class));
+
+            MetaData md = new MetaData();
+            md.setCreatedByUserId("100");
+            md.setUpdatedByUserId("100");
+            md.setCreatedTime(new Date());
+            md.setUpdatedTime(new Date());
+
+            AvatarData ad = new AvatarData();
+            ad.setType(AvatarDataType.EMOJI);
+            ad.setEmoji("100");
+            ad.setImageId("100");
+            ad.setText("100");
+
+            ProductProfileData ppd = new ProductProfileData();
+            ppd.setAvatar(ad);
+            ppd.setDescription("100");
+            ppd.setName("100");
+
+            //保存
+            ProductData item = new ProductData();
+            item.setId("7");
+            item.setOwnerId("200");
+            item.setOwnerType(ResourceType.APP);
+            item.setProfile(ppd);
+            item.setStatus(ResourceStatus.DELETED);
+            item.setMeta(md);
+
+            // Put the customer data into a DynamoDB table
+            custTable.putItem(item);
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+        System.out.println("done");
+
     }
 
     public static Page<ProductData> findAllLoad(Pageable pageable){

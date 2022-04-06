@@ -17,6 +17,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
     implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.173'
+//    compileOnly
 
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.hibernate.validator:hibernate-validator:7.0.2.Final'
