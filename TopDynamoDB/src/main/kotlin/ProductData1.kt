@@ -26,7 +26,6 @@ class ProductData1(
     /**
      * 所有者类型
      */
-//    @get:DynamoDbConvertedBy(EnumAttributeConverter::class)
     lateinit var ownerType: ResourceType
 
     /**
@@ -37,7 +36,6 @@ class ProductData1(
     /**
      * 产品状态
      */
-//    @get:DynamoDbConvertedBy(EnumAttributeConverter::class)
     lateinit var status: ResourceStatus
 
     /**

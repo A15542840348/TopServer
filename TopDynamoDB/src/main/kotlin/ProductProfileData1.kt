@@ -1,6 +1,9 @@
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean
+
 /**
  * 产品资源 信息
  */
+@DynamoDbBean
 class ProductProfileData1()
 {
     /**

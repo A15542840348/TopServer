@@ -1,10 +1,12 @@
 import com.top.data.models.common.AvatarDataType
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.EnumAttributeConverter
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy
 
 /**
  * 头像数据
  */
+@DynamoDbBean
 class AvatarData1()
 {
     /**

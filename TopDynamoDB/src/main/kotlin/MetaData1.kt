@@ -3,6 +3,7 @@ import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType
 import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.EnhancedAttributeValue
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.util.*
@@ -10,6 +11,7 @@ import java.util.*
 /**
  * 元数据
  */
+@DynamoDbBean
 class MetaData1() {
     /**
      * 创建者ID
@@ -25,7 +27,7 @@ class MetaData1() {
      * 创建时间
      */
 //    @get:DynamoDbAttribute("createdTime")
-//    @get:DynamoDbConvertedBy(LongToDateConverter1::class)
+    @get:DynamoDbConvertedBy(LongToDateConverter1::class)
 //    @set:DynamoDbAttribute("createdTime")
     lateinit var createdTime: Date
 
@@ -34,7 +36,7 @@ class MetaData1() {
      * 更新时间
      */
 //    @get:DynamoDbAttribute("updatedTime")
-//    @get:DynamoDbConvertedBy(LongToDateConverter1::class)
+    @get:DynamoDbConvertedBy(LongToDateConverter1::class)
 //    @set:DynamoDbAttribute("updatedTime")
     lateinit var updatedTime: Date
 }
@@ -46,8 +48,9 @@ class LongToDateConverter1 : AttributeConverter<Date>{
 
     override fun transformTo(input: AttributeValue): Date {
         return if (input.n() != null) {
-            Date(input.n())
-        } else Date(EnhancedAttributeValue.fromAttributeValue(input).toString())
+            Date(java.lang.Long.valueOf(input.n()))
+
+        } else Date(java.lang.Long.valueOf(EnhancedAttributeValue.fromAttributeValue(input).toString()))
     }
 
     override fun type(): EnhancedType<Date> {

@@ -17,6 +17,7 @@ import com.top.data.models.resources.product.ProductData;
 import com.top.data.models.resources.product.ProductProfileData;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -97,7 +98,7 @@ public class ProductTableBak {
 //        findAllQuery(pageable);
 //        findAllLoad(pageable);
 
-        Region region = Region.US_EAST_1;
+        Region region = Region.US_EAST_2;
         DynamoDbClient ddb = DynamoDbClient.builder()
                 .region(region)
                 .build();
@@ -106,8 +107,33 @@ public class ProductTableBak {
                 .dynamoDbClient(ddb)
                 .build();
 
-        putRecord(enhancedClient) ;
+//        putRecord(enhancedClient);
+        String result = getItem(enhancedClient);
+
         ddb.close();
+    }
+
+    public static String getItem(DynamoDbEnhancedClient enhancedClient) {
+        try {
+            //Create a DynamoDbTable object
+            DynamoDbTable<ProductData1> mappedTable = enhancedClient.table("Product", TableSchema.fromBean(ProductData1.class));
+
+            //Create a KEY object
+            Key key = Key.builder()
+                    .partitionValue("7")
+                    .sortValue("200")
+                    .build();
+
+            // Get the item by using the key
+            ProductData1 result = mappedTable.getItem(r->r.key(key));
+            return "The email value is "+result.getId();
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+
+        return "";
     }
 
     public static void putRecord(DynamoDbEnhancedClient enhancedClient) {
