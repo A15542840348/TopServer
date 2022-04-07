@@ -93,9 +93,9 @@ public class ProductTableBak {
 
 //        findById("1","2");
 
-        Pageable pageable = new Pageable(10, 10, new Sort(SortDirection.ASC, new ArrayList<>()));
+//        Pageable pageable = new Pageable(10, 10, new Sort(SortDirection.ASC, new ArrayList<>()));
 //        findAllQuery(pageable);
-        findAllLoad(pageable);
+//        findAllLoad(pageable);
 
         Region region = Region.US_EAST_1;
         DynamoDbClient ddb = DynamoDbClient.builder()
@@ -113,27 +113,27 @@ public class ProductTableBak {
     public static void putRecord(DynamoDbEnhancedClient enhancedClient) {
 
         try {
-            DynamoDbTable<ProductData> custTable = enhancedClient.table("Customer", TableSchema.fromBean(ProductData.class));
+            DynamoDbTable<ProductData1> custTable = enhancedClient.table("Product", TableSchema.fromBean(ProductData1.class));
 
-            MetaData md = new MetaData();
-            md.setCreatedByUserId("100");
+            MetaData1 md = new MetaData1();
+            md.setCreatedByUserId("200");
             md.setUpdatedByUserId("100");
             md.setCreatedTime(new Date());
             md.setUpdatedTime(new Date());
 
-            AvatarData ad = new AvatarData();
+            AvatarData1 ad = new AvatarData1();
             ad.setType(AvatarDataType.EMOJI);
             ad.setEmoji("100");
             ad.setImageId("100");
             ad.setText("100");
 
-            ProductProfileData ppd = new ProductProfileData();
+            ProductProfileData1 ppd = new ProductProfileData1();
             ppd.setAvatar(ad);
             ppd.setDescription("100");
             ppd.setName("100");
 
             //保存
-            ProductData item = new ProductData();
+            ProductData1 item = new ProductData1();
             item.setId("7");
             item.setOwnerId("200");
             item.setOwnerType(ResourceType.APP);
