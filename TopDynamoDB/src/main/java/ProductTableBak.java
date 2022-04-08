@@ -10,24 +10,12 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExecuteStatementRequest;
 import com.amazonaws.services.dynamodbv2.model.ExecuteStatementResult;
-import com.top.data.ResourceStatus;
-import com.top.data.ResourceType;
-import com.top.data.models.common.*;
+import com.top.data.models.common.Page;
+import com.top.data.models.common.Pageable;
+import com.top.data.models.common.SortDirection;
 import com.top.data.models.resources.product.ProductData;
-import com.top.data.models.resources.product.ProductProfileData;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 import java.lang.reflect.Field;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 
 public class ProductTableBak {
@@ -97,86 +85,8 @@ public class ProductTableBak {
 //        Pageable pageable = new Pageable(10, 10, new Sort(SortDirection.ASC, new ArrayList<>()));
 //        findAllQuery(pageable);
 //        findAllLoad(pageable);
-
-        Region region = Region.US_EAST_2;
-        DynamoDbClient ddb = DynamoDbClient.builder()
-                .region(region)
-                .build();
-
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(ddb)
-                .build();
-
-//        putRecord(enhancedClient);
-        String result = getItem(enhancedClient);
-
-        ddb.close();
     }
 
-    public static String getItem(DynamoDbEnhancedClient enhancedClient) {
-        try {
-            //Create a DynamoDbTable object
-            DynamoDbTable<ProductData1> mappedTable = enhancedClient.table("Product", TableSchema.fromBean(ProductData1.class));
-
-            //Create a KEY object
-            Key key = Key.builder()
-                    .partitionValue("7")
-                    .sortValue("200")
-                    .build();
-
-            // Get the item by using the key
-            ProductData1 result = mappedTable.getItem(r->r.key(key));
-            return "The email value is "+result.getId();
-
-        } catch (DynamoDbException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-
-        return "";
-    }
-
-    public static void putRecord(DynamoDbEnhancedClient enhancedClient) {
-
-        try {
-            DynamoDbTable<ProductData1> custTable = enhancedClient.table("Product", TableSchema.fromBean(ProductData1.class));
-
-            MetaData1 md = new MetaData1();
-            md.setCreatedByUserId("200");
-            md.setUpdatedByUserId("100");
-            md.setCreatedTime(new Date());
-            md.setUpdatedTime(new Date());
-
-            AvatarData1 ad = new AvatarData1();
-            ad.setType(AvatarDataType.EMOJI);
-            ad.setEmoji("100");
-            ad.setImageId("100");
-            ad.setText("100");
-
-            ProductProfileData1 ppd = new ProductProfileData1();
-            ppd.setAvatar(ad);
-            ppd.setDescription("100");
-            ppd.setName("100");
-
-            //保存
-            ProductData1 item = new ProductData1();
-            item.setId("7");
-            item.setOwnerId("200");
-            item.setOwnerType(ResourceType.APP);
-            item.setProfile(ppd);
-            item.setStatus(ResourceStatus.DELETED);
-            item.setMeta(md);
-
-            // Put the customer data into a DynamoDB table
-            custTable.putItem(item);
-
-        } catch (DynamoDbException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-        System.out.println("done");
-
-    }
 
     public static Page<ProductData> findAllLoad(Pageable pageable){
         Page<ProductData> pg = new Page<>(0,0, pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort(),new ArrayList<>());

@@ -7,6 +7,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverterFacto
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.top.data.models.common.LongToDateConverter;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.util.Date;
 
@@ -56,5 +59,18 @@ public class TableMethod {
         }
 
         return mapper;
+    }
+
+    public static DynamoDbEnhancedClient getClientV2(){
+        Region region = Region.US_EAST_2;
+        DynamoDbClient ddb = DynamoDbClient.builder()
+                .region(region)
+                .build();
+
+        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(ddb)
+                .build();
+
+        return enhancedClient;
     }
 }
